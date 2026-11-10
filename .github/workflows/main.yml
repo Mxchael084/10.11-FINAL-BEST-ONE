@@ -16,8 +16,14 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 9.3.0
-      - name: Build mod
-        run: gradle build --no-daemon
+      - name: Build mod (bis zu 3 Versuche bei Netzwerkfehlern)
+        run: |
+          for i in 1 2 3; do
+            gradle build --no-daemon && exit 0
+            echo "Versuch $i fehlgeschlagen, neuer Versuch in 15 Sekunden..."
+            sleep 15
+          done
+          exit 1
       - name: Check jar contents
         run: |
           JAR=$(ls build/libs/*.jar | head -n 1)
